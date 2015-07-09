@@ -16,7 +16,7 @@ Simple gulp boilerplate for front-end development.
 
 ## Instal
 ```
-$ git clone https://github.com/tsuyoshiwada/coffee-boilerplate.git
+$ git clone https://github.com/tsuyoshiwada/gulp-coffee-boilerplate.git
 $ cd coffee-boilerplate
 $ npm install && bower install
 ```
