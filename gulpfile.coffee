@@ -25,7 +25,7 @@ gulp.task("bs", (cb) ->
   browserSync.init({
     notify: false
     server: {
-      baseDir: "dist"
+      baseDir: "./dist"
     }
   })
   cb()
@@ -46,7 +46,7 @@ gulp.task("bs:reload", (cb) ->
 # =======================================================
 gulp.task("clean", (cb) ->
   del([
-    "dist"
+    "./dist"
   ], cb)
 )
 
@@ -55,11 +55,11 @@ gulp.task("clean", (cb) ->
 # $ gulp copy-assets
 # =======================================================
 gulp.task("copy-assets", ->
-  src = ["assets/**/*"]
-  src.push("!assets/**/*.+(jpg|jpeg|png|gif|svg)") unless !isProduction
+  src = ["./assets/**/*"]
+  src.push("!./assets/**/*.+(jpg|jpeg|png|gif|svg)") unless !isProduction
 
-  gulp.src(src, base: "assets")
-  .pipe(gulp.dest("dist"))
+  gulp.src(src, base: "./assets")
+  .pipe(gulp.dest("./dist"))
   .pipe(browserSync.stream())
 )
 
@@ -68,14 +68,32 @@ gulp.task("copy-assets", ->
 # $ gulp images
 # =======================================================
 gulp.task("images", ->
-  gulp.src("assets/images/**/*.+(jpg|jpeg|png|gif|svg)")
+  gulp.src("./assets/images/**/*.+(jpg|jpeg|png|gif|svg)")
   .pipe($.imagemin(
     optimizationLevel: 6
     progressive: true
     interlaced: true
     multipass: true
   ))
-  .pipe(gulp.dest("dist/images"))
+  .pipe(gulp.dest("./dist/images"))
+  .pipe(browserSync.stream())
+)
+
+
+# =======================================================
+# $ gulp jade
+# =======================================================
+gulp.task("jade", ->
+  gulp.src([
+    "./src/jade/**/*.jade"
+    "!./src/jade/**/_*.jade"
+  ])
+  .pipe($.plumber())
+  .pipe($.data( ->
+    require("./src/jade/config.json")
+  ))
+  .pipe($.jade(pretty: true))
+  .pipe(gulp.dest("dist"))
   .pipe(browserSync.stream())
 )
 
@@ -100,9 +118,9 @@ gulp.task("webpack", (cb) ->
 # $ gulp uglify
 # =======================================================
 gulp.task("uglify", ->
-  gulp.src("dist/js/**/*.js")
+  gulp.src("./dist/js/**/*.js")
   .pipe($.uglify(preserveComments: "some"))
-  .pipe(gulp.dest("dist/js"))
+  .pipe(gulp.dest("./dist/js"))
   .pipe(browserSync.stream())
 )
 
@@ -118,7 +136,7 @@ gulp.task("sass", ->
     params = 
       outputStyle: "expanded"
 
-  gulp.src("src/sass/**/*.scss")
+  gulp.src("./src/sass/**/*.scss")
   .pipe($.plumber())
   .pipe($.sass.sync(params).on("error", $.sass.logError))
   .pipe($.autoprefixer(
@@ -129,7 +147,7 @@ gulp.task("sass", ->
       "Android 4"
     ]
   ))
-  .pipe(gulp.dest("dist/css"))
+  .pipe(gulp.dest("./dist/css"))
   .pipe(browserSync.stream())
 )
 
@@ -141,7 +159,7 @@ gulp.task("build", (cb) ->
   runSequence(
     "clean",
     "copy-assets",
-    ["webpack", "sass"],
+    ["webpack", "sass", "jade"],
     ["uglify", "images"],
     cb
   )
@@ -156,15 +174,19 @@ gulp.task("watch", (cb) ->
     "build",
     "bs",
     ->
-      $.watch("assets/**/*", ->
+      $.watch("./assets/**/*", ->
         gulp.start("copy-assets")
       )
 
-      $.watch("src/coffee/**/*", ->
+      $.watch("./src/jade/**/*", ->
+        gulp.start("jade")
+      )
+
+      $.watch("./src/coffee/**/*", ->
         gulp.start("webpack")
       )
 
-      $.watch("src/sass/**/*", ->
+      $.watch("./src/sass/**/*", ->
         gulp.start("sass")
       )
       

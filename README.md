@@ -9,6 +9,7 @@ Simple gulp boilerplate for front-end development.
 * Image optimization
 * Compile Scss files
 * Autoprefix styles
+* Compile Jade files
 * Compile Coffee scripts files
 * Support require of [bower](http://bower.io/) and [npm](https://www.npmjs.com/) modules
 * JS and CSS compression
